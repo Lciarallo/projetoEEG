@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Caches e Ambientes Virtuais
+.venv/
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# Arquivos temporários e de SO
+.DS_Store
+*.log
+/tmp/
+
+# Arquivos de backup comprimidos redundantes
+eeg_data.zip
+
+# IDEs
+.vscode/
+.idea/

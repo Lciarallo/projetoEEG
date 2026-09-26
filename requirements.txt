@@ -1,0 +1,9 @@
+# Dependências do Projeto de Análise e Decodificação de EEG
+numpy>=1.26.0
+scipy>=1.12.0
+pandas>=2.2.0
+matplotlib>=3.8.0
+scikit-learn>=1.4.0
+specparam>=2.0.0rc7
+markdown>=3.6
+torch>=2.2.0
