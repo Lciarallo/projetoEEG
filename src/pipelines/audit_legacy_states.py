@@ -46,20 +46,26 @@ def preprocess_like_legacy(path):
     return signal.sosfiltfilt(sos, notched, axis=0)
 
 
-def legacy_windows(data):
-    """Same eight-second and two-second-step rule, within one condition."""
+def legacy_windows(data, step_s=2):
+    """Eight-second FAA and maximum frontal peak-to-peak, within one condition."""
+    if step_s not in (2, 8):
+        raise ValueError('Passo de janela inválido')
     values = []
-    for start in range(0, len(data) - 1600, 400):
-        power = alpha_power(data[start:start + 1600])
+    amplitudes = []
+    for start in range(0, len(data) - 1600, int(step_s * 200)):
+        window = data[start:start + 1600]
+        power = alpha_power(window)
         if power[0] > 1e-6 and power[1] > 1e-6:
             values.append(faa(power))
+            amplitudes.append(float(np.ptp(window[:, :2], axis=0).max()))
     if not values:
         raise ValueError('Nenhuma janela FAA válida')
-    return np.asarray(values)
+    return pd.DataFrame(dict(faa=values, max_frontal_p2p_uv=amplitudes))
 
 
 def audit():
     rows = []
+    sensitivity_rows = []
     for label, stamp in SESSIONS:
         clean = preprocess_like_legacy(session_path(stamp))
         sections = ([(f'BB {index + 1}', clean[index * 60000:(index + 1) * 60000])
@@ -73,10 +79,21 @@ def audit():
             rows.append(dict(condition=condition, alpha_f3=power[0], alpha_f4=power[1],
                              faa_aggregate=aggregate,
                              legacy_state=POSITIVE if aggregate > 0 else NEGATIVE,
-                             windows_positive=int(np.count_nonzero(windows > 0)),
+                             windows_positive=int(np.count_nonzero(windows.faa > 0)),
                              windows_total=len(windows),
-                             windows_positive_pct=100 * np.mean(windows > 0),
-                             faa_window_median=float(np.median(windows))))
+                             windows_positive_pct=100 * np.mean(windows.faa > 0),
+                             faa_window_median=float(windows.faa.median())))
+            for step_s, candidates in ((2, windows), (8, legacy_windows(segment, step_s=8))):
+                for cutoff in (None, 150, 500):
+                    selected = (candidates if cutoff is None else
+                                candidates[candidates.max_frontal_p2p_uv <= cutoff])
+                    sensitivity_rows.append(dict(condition=condition, step_s=step_s,
+                                                 upper_p2p_uv='none' if cutoff is None else str(cutoff),
+                                                 candidate_windows=len(candidates),
+                                                 retained_windows=len(selected),
+                                                 positive_windows=int(np.count_nonzero(selected.faa > 0)),
+                                                 positive_pct=(100 * np.mean(selected.faa > 0)
+                                                               if len(selected) else np.nan)))
     result = pd.DataFrame(rows)
     if result.condition.tolist() != list(CONDITIONS):
         raise ValueError('Ordem das condições inesperada')
@@ -89,18 +106,21 @@ def audit():
                 [old.Alpha_F3, old.Alpha_F4, old.FAA],
                 [new.alpha_f3, new.alpha_f4, new.faa_aggregate], rtol=1e-9, atol=1e-9):
             raise ValueError(f'Tabela histórica não reproduzida: {old.Condicao}')
-    return result
+    return result, pd.DataFrame(sensitivity_rows)
 
 
 def main():
-    result = audit()
+    result, sensitivity = audit()
     OUT.mkdir(parents=True, exist_ok=True)
     result.to_csv(OUT / 'legacy_state_audit.csv', index=False)
+    sensitivity.to_csv(OUT / 'legacy_state_amplitude_sensitivity.csv', index=False)
     inputs = [session_path(stamp) for _, stamp in SESSIONS]
     inputs += [LEGACY_TABLE, ROOT / 'legacy' / 'compute_frontal_alpha_asymmetry.py',
                ROOT / 'src' / 'pipelines' / 'audit_legacy_states.py']
     manifest = dict(parameters=dict(fs=200, alpha_hz=[8, 13], notch_hz=60,
-                                    bandpass_hz=[1, 45], window_s=8, step_s=2,
+                                    bandpass_hz=[1, 45], window_s=8, step_s=[2, 8],
+                                    upper_window_p2p_cutoffs_uv=[150, 500],
+                                    upper_p2p_rule='maximum F3/F4 peak-to-peak within each 8-second window',
                                     aggregate='log of whole-segment Welch alpha-power ratio',
                                     state_threshold=0),
                     input_sha256={str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()

@@ -6,7 +6,7 @@
 
 **O efeito do áudio binaural sobre o relaxamento desta pessoa permanece indeterminado.** O programa antigo exibiu “Aproximação/Relaxamento” nos quatro blocos com áudio, mas também na linha de base, antes do áudio. Reproduzimos esse resultado dos arquivos brutos. Há diferenças de EEG ao longo da sessão; elas não permitem afirmar que o som causou relaxamento, nem que não teve efeito. Condição, ordem temporal e arquivo coincidem, e faltam áudio controle, medida direta de relaxamento e marcador independente do som. Épocas e blocos de uma pessoa não são réplicas independentes.
 
-O alfa frontal relativo foi menor nos quatro blocos rotulados BB que na Base. Ao exigir 80% de épocas válidas por bloco de 30 s, BB 1 e BB 2 ficam com apenas um bloco cada; BB 3 e BB 4 mantêm quedas descritivas. Na EEGMAT, alfa distingue repouso de cálculo mental em 36 pessoas, mas essa base não mede relaxamento percebido. Nos dados de [Sudre et al. (2024)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0306427), o contraste binaural-monaural não forneceu vantagem conclusiva nesta reanálise. Ausência de significância não demonstra equivalência.
+O alfa frontal relativo foi menor nos quatro blocos rotulados BB que na Base. A proporção de janelas com FAA positiva, calculada pela regra do programa antigo, é sensível ao corte de amplitude. Ao exigir 80% de épocas válidas por bloco de 30 s, BB 1 e BB 2 ficam com apenas um bloco cada; BB 3 e BB 4 mantêm quedas descritivas. Na EEGMAT, alfa distingue repouso de cálculo mental em 36 pessoas, mas essa base não mede relaxamento percebido. Nos dados de [Sudre et al. (2024)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0306427), o contraste binaural-monaural não forneceu vantagem conclusiva nesta reanálise. Ausência de significância não demonstra equivalência.
 
 ## 1. Pergunta e desenho
 
@@ -48,6 +48,20 @@ Em [compute_frontal_alpha_asymmetry.py](../legacy/compute_frontal_alpha_asymmetr
 | Pós 2 | +1.977 | Aproximação/Relaxamento | 54/156 (34.6%) |
 
 **Leitura do rótulo:** todas as sete condições receberam “Aproximação/Relaxamento”, inclusive a Base. Portanto, a tabela do programa **não registra uma passagem de “não relaxado” para “relaxado” quando o áudio começa**. Ela também não significa que a pessoa permaneceu nesse estado ao longo de toda a gravação: na Base, 47 de 171 janelas móveis tiveram FAA positiva; no Pós 1, apenas 20 de 152, apesar do rótulo positivo da condição inteira. Isso ocorre porque o FAA da condição usa o logaritmo da razão de potências agregadas, enquanto a coluna de janelas conta sinais calculados separadamente. Janelas sobrepostas não são observações independentes, e o programa antigo não rejeita épocas por amplitude. Esses números descrevem a saída do algoritmo, sem teste válido do efeito do áudio.
+
+### Sensibilidade ao corte de amplitude
+
+Mantendo o filtro e a fórmula do programa antigo, excluí janelas móveis de 8 s cujo **maior pico a pico frontal (F3 ou F4)** excedia 150 ou 500 µV. Cada célula informa janelas com FAA positiva / janelas retidas; a contagem sem corte está na tabela anterior. São diagnósticos de sensibilidade escolhidos após a análise, não um detector validado de artefatos. Aplicar 150 µV à janela inteira de 8 s é mais restritivo que aplicar o mesmo limite a cada época de 2 s da reanálise principal. [Todas as condições e janelas sem sobreposição](../results/critical_2026_09_29/legacy_state_amplitude_sensitivity.csv) estão no CSV auditado.
+
+| Condição | FAA > 0 com corte 150 µV | FAA > 0 com corte 500 µV |
+| --- | --- | --- |
+| Base | 22/138 (15.9%) | 26/146 (17.8%) |
+| BB 1 | 6/12 (50.0%) | 97/137 (70.8%) |
+| BB 2 | 4/24 (16.7%) | 62/99 (62.6%) |
+| BB 3 | 27/56 (48.2%) | 71/116 (61.2%) |
+| BB 4 | 4/63 (6.3%) | 56/127 (44.1%) |
+
+Com 150 µV, BB 1 retém só 12 de 146 janelas candidatas; BB 2 retém 24 e BB 4, 63. A fração positiva de BB 2 (16,7%) fica próxima da Base (15,9%), e BB 4 (6,3%) fica abaixo. Com 500 µV, a direção descritiva volta a ser maior em BB que na Base, mas o número de janelas também muda. Um passo de 8 s, sem sobreposição, reduz a contagem; após o corte de 150 µV, BB 2 tem 0/6 janelas positivas e BB 4 tem 1/18. Essas escolhas não identificam qual janela contém artefato nem transformam janelas da mesma pessoa em réplicas independentes. **A alegação de “relaxamento” baseada na proporção de FAA positiva não é robusta a esse diagnóstico de amplitude.**
 
 O nome “Relaxamento” no rótulo excede o que a FAA identifica. Em um [experimento com indução de raiva](https://pubmed.ncbi.nlm.nih.gov/11374750/), maior atividade frontal esquerda acompanhou raiva e comportamento de aproximação; logo, a direção da assimetria não é exclusiva de calma. O [estudo de Barry et al.](https://pubmed.ncbi.nlm.nih.gov/17911042/) mostra que abrir ou fechar os olhos altera a potência alfa; o estado dos olhos não foi registrado neste piloto. Essas fontes sustentam a necessidade de medir diretamente a experiência da pessoa e controlar o protocolo, sem indicar qual fator concreto produziu cada trecho do nosso EEG.
 
@@ -165,7 +179,7 @@ Os seis folds compartilham conjuntos de treino; o desvio é entre folds, não in
 
 ## 8. Conclusão e próxima coleta
 
-**Sustentado:** o rótulo histórico “Aproximação/Relaxamento” apareceu na Base, nos quatro blocos BB e nas duas sessões Pós; a curva de janelas contém ambos os sinais de FAA em cada fase. Os registros locais diferem em alguns descritores de EEG, e o alfa frontal relativo durante BB foi menor que na Base nas configurações examinadas, com perda desigual de épocas. Isso demonstra mudanças **observadas durante a sessão**, compatíveis com várias explicações; não demonstra ausência de resposta ao áudio. Alfa e theta diferenciam repouso de cálculo mental em média na EEGMAT. Nos dados de áudio reanalisados, C1-C0 não forneceu vantagem conclusiva nas escalas ou no EEG frontal após correção.
+**Sustentado:** o rótulo histórico “Aproximação/Relaxamento” apareceu na Base, nos quatro blocos BB e nas duas sessões Pós; as janelas contêm ambos os sinais de FAA e a proporção positiva varia muito com o corte de amplitude. Os registros locais diferem em alguns descritores de EEG, e o alfa frontal relativo durante BB foi menor que na Base nas configurações examinadas, com perda desigual de épocas. Isso demonstra mudanças **observadas durante a sessão**, compatíveis com várias explicações; não demonstra ausência de resposta ao áudio. Alfa e theta diferenciam repouso de cálculo mental em média na EEGMAT. Nos dados de áudio reanalisados, C1-C0 não forneceu vantagem conclusiva nas escalas ou no EEG frontal após correção.
 
 **Não identificado:** se o áudio, em comparação com outro som ou silêncio, causou alguma dessas mudanças; se a pessoa se sentiu mais calma; a resposta imediatamente após desligar o áudio; equivalência entre estímulos; arrastamento neural; ou benefício clínico. **Ausência de prova de benefício não é prova de efeito nulo.** A inferência causal falha porque há um participante, uma ordem fixa, nenhuma sessão controle comparável e nenhuma medida direta de relaxamento. Além disso, olhos, atenção e qualidade de contato não foram acompanhados. A [revisão sistemática de Ingendoh et al.](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0286023) encontrou resultados heterogêneos sobre arrastamento em EEG; uma banda isolada não determina estado psicológico.
 

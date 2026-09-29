@@ -78,6 +78,33 @@ def main():
          for row in legacy.itertuples()]
     )
 
+    amplitude = pd.read_csv(CRITICAL / 'legacy_state_amplitude_sensitivity.csv',
+                            dtype={'upper_p2p_uv': str}, keep_default_na=False)
+    require_rows(amplitude, 42, 'sensibilidade dos estados à amplitude')
+    expected_keys = {(condition, step, cutoff)
+                     for condition in ORDER for step in (2, 8)
+                     for cutoff in ('none', '150', '500')}
+    keys = list(zip(amplitude.condition, amplitude.step_s, amplitude.upper_p2p_uv))
+    if set(keys) != expected_keys or len(set(keys)) != len(keys):
+        raise ValueError('Grade de sensibilidade dos estados incompleta ou duplicada')
+    amplitude = amplitude.set_index(['condition', 'step_s', 'upper_p2p_uv'])
+    for row in legacy.itertuples():
+        original = amplitude.loc[(row.condition, 2, 'none')]
+        if (original.positive_windows != row.windows_positive or
+                original.retained_windows != row.windows_total):
+            raise ValueError(f'Janelas legadas divergem: {row.condition}')
+
+    def amplitude_cell(condition, cutoff):
+        row = amplitude.loc[(condition, 2, cutoff)]
+        return (f'{int(row.positive_windows)}/{int(row.retained_windows)} '
+                f'({row.positive_pct:.1f}%)')
+
+    amplitude_table = table(
+        ['Condição', 'FAA > 0 com corte 150 µV', 'FAA > 0 com corte 500 µV'],
+        [(condition, amplitude_cell(condition, '150'), amplitude_cell(condition, '500'))
+         for condition in ORDER[:5]]
+    )
+
     quality = pd.read_csv(CRITICAL / 'local_quality_sensitivity.csv')
     require_rows(quality, 14, 'sensibilidade local')
     quality_rows = []
@@ -192,6 +219,7 @@ def main():
         'GAP_BB_POST_TEXT': f'{gap:.0f} s ({int(gap // 60)} min {round(gap % 60):02d} s)',
         'LOCAL_TABLE': local_table,
         'LEGACY_STATE_TABLE': legacy_table,
+        'LEGACY_AMPLITUDE_TABLE': amplitude_table,
         'QUALITY_TABLE': quality_table,
         'EEGMAT_TABLE': eegmat_table,
         'WINDOW_TABLE': window_table,
