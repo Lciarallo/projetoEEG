@@ -1,0 +1,3 @@
+group,questionnaire_subjects,eeg_subjects,frontal_complete_pairs,eeg_exact_duplicates_removed,subject_ids_complete,eeg_ids_not_in_questionnaire,questionnaire_ids_no_complete_roi
+G6,22,20,7,0,"5,9,11,19,27,31,39",,"1,3,7,13,15,17,21,23,25,29,35,37,40,41,42"
+G40,19,19,5,1092,"8,22,24,28,36",,"2,4,6,10,12,14,16,18,20,26,30,32,34,38"

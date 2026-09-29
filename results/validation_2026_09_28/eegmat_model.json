@@ -1,0 +1,16 @@
+{
+  "n_subjects": 36,
+  "balanced_accuracy": 0.5833333333333334,
+  "auc": 0.6141975308641976,
+  "ci_low": 0.5138888888888888,
+  "ci_high": 0.6527777777777778,
+  "n_permutations": 199,
+  "permutation_p": 0.075,
+  "null_mean": 0.49867392518146286,
+  "features": [
+    "alpha_rel",
+    "theta_rel",
+    "log_alpha_lowbeta",
+    "faa"
+  ]
+}

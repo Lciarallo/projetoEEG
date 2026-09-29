@@ -1,138 +1,70 @@
-# Dinâmica de EEG sob Estimulação com Batimentos Binaurais: Estudo Piloto e Decodificação Neural
+# Projeto EEG: piloto de estimulação binaural
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![PyTorch 2.12](https://img.shields.io/badge/PyTorch-2.12-ee4c2c.svg)](https://pytorch.org/)
-[![AMD ROCm 7.2](https://img.shields.io/badge/ROCm-7.2-red.svg)](https://rocm.docs.amd.com/)
-[![OpenBCI Ganglion](https://img.shields.io/badge/OpenBCI-Ganglion%20(200Hz)-green.svg)](https://openbci.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[Relatório científico consolidado](reports/relatorio_cientifico.md) · [PDF](reports/Relatorio_Cientifico_EEG_Binaural.pdf) · [Reanálise crítica detalhada](reports/reanalise_critica_2026_09_29.md).
 
-Repositório científico com o pipeline de processamento de sinais, modelos de aprendizado profundo (EEGNet) e auditoria anti-viés metodológico para investigação eletroencefalográfica de batimentos binaurais em sujeito único ($N=1$).
+**Conclusão atual:** as diferenças de EEG entre arquivos não demonstram que o áudio binaural causou relaxamento. O relatório principal integra o piloto, 36 participantes da EEGMAT e os contrastes binaural-monaural publicados por Sudre et al., com os testes refeitos e suas limitações.
 
----
+## Reanálise crítica - 29/09/2026
 
-## 📌 Visão Geral do Projeto
+[Relatório crítico](reports/reanalise_critica_2026_09_29.md) · [Resultados e manifesto](results/critical_2026_09_29/) · [Testes reescritos](tests/).
 
-Este estudo investiga a dinâmica eletroencefalográfica e a conectividade funcional pré-frontal durante estimulação auditiva contínua com batimentos binaurais. A aquisição foi realizada com a placa **OpenBCI Ganglion** (4 canais, $200\text{ Hz}$) e o headset **Ultracortex Mark IV** com eletrodos secos nas posições **F3, F4, P3/O1 e P4/O2**.
+Os timestamps mostram **642,0 s sem registro** entre o fim do arquivo BB e o início do Pós 1; não há marcador que informe quando o áudio foi desligado. A nova análise recalcula diretamente dos arquivos brutos as 772 épocas locais da configuração principal e examina retenção por bloco, escolha da janela EEGMAT, cobertura dos eletrodos e ordem dos áudios na base Sudre. Esses testes reforçam os limites da inferência: diferenças no EEG local não demonstram relaxamento ou efeito causal do binaural. Para reproduzir: `python3 -m unittest discover -s tests -v` e `.venv-validation/bin/python -m src.pipelines.run_critical_reanalysis` após baixar os dados externos.
 
-### Principais Descobertas Científicas e Metodológicas:
+## Novo estudo de relaxamento com validação externa - 28/09/2026
 
-1. **Desmistificação do Falso "Surto de Beta a 20 Hz":**
-   * Descobriu-se que o pico na banda Beta ($13\text{--}30\text{ Hz}$) decorria de **aliasing do 3º harmônico da rede elétrica** ($180\text{ Hz}$ rebatido em $|180 - 200| = \mathbf{20.0\text{ Hz}}$ sob $f_s = 200\text{ Hz}$).
-   * Com filtragem cirúrgica de duplo notch ($60\text{ Hz}$ e $20\text{ Hz}$), a potência de Beta restabeleceu-se em níveis basais estáveis ($\approx 5.5\%\text{--}7.8\%$).
+[Relatório completo](reports/estudo_relaxamento_validacao_externa.md) · [PDF](reports/Estudo_Relaxamento_Validacao_Externa.pdf) · [Plano](reports/plano_validacao_externa.md) · [Fontes e licenças](data/EXTERNAL_DATA.md).
 
-2. **Sincronização de Fase Transitória (Replicação de Gao et al., 2014):**
-   * O **wPLI (*Weighted Phase Lag Index*)** na banda Alfa ($8\text{--}13\text{ Hz}$) entre F3 e F4 aumentou de $0.286$ (repouso) para **$0.390$ ($p = 0.013$)** e **$0.308$ ($p = 0.021$)** nos blocos centrais de estimulação, desvanecendo nos minutos finais ($p = 0.560$), comprovado contra **1000 distribuições nulas de fase aleatória (Surrogates de Monte Carlo)**.
+Reanálise de 72 EDF da EEGMAT (36 participantes) e dos CSVs públicos do estudo de Sudre et al. (2024), que incluem EEG e questionários para áudio binaural/monaural. O alfa frontal foi maior no repouso externo, mas caiu durante os quatro blocos de áudio no piloto, nas quatro sensibilidades testadas. Isso não confirma relaxamento pelos indicadores escolhidos e não prova piora subjetiva.
 
-3. **Assimetria Alfa Frontal (FAA) Normalizada:**
-   * A normalização relativa intra-canal neutralizou o viés de ganho por impedância dos eletrodos secos, revelando modulação bilateral consistente ($d = -0.528$, IC 95% via Bootstrap com 2000 reamostragens).
+O classificador externo, validado deixando pessoas inteiras fora do treino, obteve 58,33% de acurácia balanceada (p de permutação=0,075). Não foi validado como detector individual de relaxamento. A comparação binaural-monaural dos questionários não mostrou vantagem conclusiva após Holm. A cobertura de EEG frontal da segunda base foi pequena e há diferenças de amostra em relação ao artigo, explicitadas no relatório.
 
-4. **Decodificação Neural por Deep Learning com Zero Vazamento Temporal:**
-   * A arquitetura **EEGNet** (Lawhern et al., 2018), com convoluções separáveis verdadeiras e restrições *MaxNorm*, foi avaliada sob **Validação Cruzada Temporal por Blocos (*Leave-One-Block-Out*)** com buffer de segurança de $\ge 2\text{ minutos}$ entre treino e teste.
-   * Treinada na GPU **AMD Radeon RX 9070 XT** (via ROCm 7.2), atingiu **$77.57\% \pm 3.45\%$ de acurácia limpa** versus $54.90\% \pm 8.81\%$ do controle nulo permutado ($t = 4.337, \mathbf{p = 0.0075^{**}}$).
+Os dados externos ficam fora do Git; resultados derivados, hashes e scripts estão em `results/validation_2026_09_28/` e `src/pipelines/`. Para reproduzir, use `requirements-validation.txt` e os comandos do novo relatório. A auditoria de 26/09 abaixo permanece como histórico metodológico.
 
-5. **Auditoria Anti-Viés da Metodologia Treino/Teste:**
-   * **Teste A/A de Estacionariedade:** A classificação da 1ª vs. 2ª metade do Repouso resultou em **$47.82\% \pm 7.63\%$** (nível puro de acaso em $50\%$), provando ausência de deriva temporal de hardware.
-   * **Generalização para Sessões Externas Pós-Estímulo:** Testada nas sessões posteriores sem re-treinamento, a probabilidade de ativação decaiu monotonicamente ($0.965 \rightarrow 0.915 \rightarrow 0.649$), comprovando retorno gradual ao repouso e refutando memorização de arquivos.
-   * **Modelo Interpretável com 24 Biomarcadores (Random Forest):** Atingiu **$82.82\% \pm 3.67\%$** (ROC-AUC de **$0.892$**), tendo a conectividade de fase em Alfa F3–F4 (`PhaseLag_Alpha_F3_F4`) como uma das variáveis determinantes.
+Análise exploratória de quatro gravações OpenBCI Ganglion (quatro canais, 200 Hz), atribuídas a um participante. A revisão de 26/09/2026 corrige o pipeline e substitui as conclusões anteriores. Condição, arquivo e ordem temporal estão confundidos; os dados não demonstram causalidade nem benefício clínico.
 
----
+## Resultado da auditoria
 
-## 📂 Estrutura do Repositório
+- As contagens do relatório estavam misturadas: a tabela principal usava 150 µV e janelas de cinco minutos, enquanto o texto descrevia 500 µV e registros completos. A base correta é 144/150 épocas nessa tabela.
+- Com 150 µV e notch, nenhum dos sete testes de defasagem permanece significativo após Holm (menor p ajustado: 0,0909). Com 500 µV, os resultados mudam, inclusive para a base. São testes dentro de condições, não comparações de BB versus base.
+- Os blocos de treino/teste agora preservam índices originais e um intervalo nominal de 120 s entre bordas. O treino/teste anterior não garantia esse intervalo.
+- Nova EEGNet, 45 épocas por fold, seis folds: acurácia balanceada 64,90% ± 21,02 pontos percentuais; controle diagnóstico 50,88% ± 4,93. Random Forest: 69,85% ± 14,26. Desvios são amostrais entre folds, não ICs populacionais.
+- A filtragem ainda opera na sessão completa; não se afirma “zero vazamento”. O notch de 20 Hz é uma hipótese de tratamento de interferência, não prova de aliasing elétrico. Métricas posteriores requerem cautela: a rejeição frontal não controla todos os canais.
 
-```text
-projetoEEG/
-├── README.md                              # Documentação completa do projeto
-├── requirements.txt                      # Dependências do Python
-├── .gitignore                            # Arquivos e diretórios ignorados
-├── data/                                 # Dados experimentais
-│   ├── README.md                         # Documentação de hardware e mapeamento 10-20
-│   └── raw/                              # Arquivos brutos OpenBCI RAW .txt
-├── src/                                  # Código-fonte modular
-│   ├── __init__.py
-│   ├── preprocessing.py                  # Detrend, filtros de aliasing, SOS bandpass e épocas
-│   ├── connectivity.py                   # wPLI inter-épocas e teste de surrogates
-│   ├── asymmetry.py                      # FAA relativa e Bootstrap não-paramétrico
-│   ├── models/
-│   │   ├── __init__.py
-│   │   └── eegnet.py                     # Implementação PyTorch fiel da EEGNet
-│   └── pipelines/
-│       ├── run_electrophysiology.py      # Execução de wPLI, FAA e potências espectrais
-│       ├── run_eegnet_gpu.py             # Validação temporal Leave-One-Block-Out na GPU
-│       └── run_anti_bias_audit.py        # 4 estratégias de auditoria anti-viés metodológico
-├── reports/                              # Relatórios acadêmicos e PDFs
-│   ├── Relatorio_Cientifico_EEG_Binaural.pdf  # Relatório completo formatado para A4 (6 páginas)
-│   ├── relatorio_cientifico.md           # Versão Markdown com referências completas
-│   └── generate_pdf.py                   # Gerador de PDF via Headless Chromium
-├── results/                              # Gráficos de alta resolução e tabelas CSV
-│   ├── figures/                          # Painéis e figuras de publicação
-│   └── tables/                           # CSVs consolidados com testes de hipótese
-└── legacy/                               # Scripts originais de análise exploratória
-    ├── analyze_eeg_pipeline.py
-    ├── advanced_connectivity_and_plots.py
-    └── compute_frontal_alpha_asymmetry.py
-```
+O [relatório científico consolidado](reports/relatorio_cientifico.md) substitui o texto principal desta auditoria. A cópia PDF da raiz é sincronizada pelo gerador. As tabelas e figuras antigas foram preservadas para comparação, mas suas legendas e conclusões não representam a análise revisada.
 
----
+## Execução
 
-## 🚀 Como Reproduzir os Resultados
+Python 3.11 ou superior. Use um ambiente com as dependências de `requirements.txt` e uma instalação PyTorch compatível com CPU ou sua GPU. O ambiente `.venv` encontrado no projeto estava incompleto; a revisão foi executada com `python3` do host. As versões efetivamente usadas estão nos manifestos dos resultados.
 
-### 1. Clonar o Repositório e Instalar Dependências
 ```bash
-git clone https://github.com/Lciarallo/projetoEEG.git
-cd projetoEEG
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-### 2. Executar o Pipeline Eletrofisiológico (wPLI + FAA + Potências)
-```bash
-python3 src/pipelines/run_electrophysiology.py
-```
-*Gera tabelas estatísticas com testes de surrogates e gráficos com intervalos de confiança Bootstrap em `results/`.*
-
-### 3. Executar o Treinamento da EEGNet com Validação Temporal Limpa
-```bash
-python3 src/pipelines/run_eegnet_gpu.py
-```
-*Executa a validação cruzada Leave-One-Block-Out na GPU (AMD ROCm / NVIDIA CUDA) e compara contra o modelo nulo permutado.*
-
-### 4. Executar a Auditoria Anti-Viés Metodológico
-```bash
-python3 src/pipelines/run_anti_bias_audit.py
-```
-*Executa o teste de estacionariedade A/A, a generalização externa para as sessões pós-estímulo e o modelo Random Forest com 24 biomarcadores.*
-
-### 5. Compilar o Relatório Científico em PDF
-```bash
+python3 -m unittest discover -s tests -v
+python3 -m src.pipelines.run_electrophysiology
+python3 -m src.pipelines.run_anti_bias_audit
+python3 -m src.pipelines.run_eegnet_gpu --epochs 45 --device auto
+python3 reports/update_report.py
 python3 reports/generate_pdf.py
 ```
 
----
+O PDF precisa de Chromium/Chrome local. A geração funciona offline com figuras incorporadas e falha explicitamente quando falta uma figura ou o navegador não produz o arquivo. Não há dependência de fórmulas LaTeX não renderizadas.
 
-## 📊 Principais Resultados Gráficos
+## Organização
 
-### 1. Validação Eletrofisiológica e Testes de Hipótese
-![Validação Estatística](results/figures/validacao_estatistica_alta_confiabilidade.png)
-*A: Assimetria Alfa Frontal relativa com IC 95% Bootstrap. B: Conectividade wPLI Alfa F3–F4 superando o limiar nulo de 1000 surrogates ($p < 0.05$). C: Estabilização de Beta após remoção do aliasing de 180 Hz.*
+- `data/raw/`: registros originais, preservados. `data/README.md`: metadados e ressalvas.
+- `src/preprocessing.py`, `asymmetry.py`, `connectivity.py`: funções compartilhadas com validação de entrada e sementes fixas.
+- `src/validation.py`: partições temporais e ajuste de Holm.
+- `src/features.py`, `decoding.py`, `models/eegnet.py`: descritores, dados e variante EEGNet.
+- `src/pipelines/`: eletrofisiologia com sensibilidade, Random Forest temporal/transferência e EEGNet temporal.
+- `results/audit_2026_09_26/`: resultados revisados, figura e manifestos SHA-256 de dados/código, parâmetros e versões.
+- `results/validation_2026_09_28/` e `results/critical_2026_09_29/`: validação externa, sensibilidades, testes pareados e manifestos.
+- `results/tables/`, `results/figures/`, `legacy/`: material histórico, não revalidado integralmente.
+- `reports/relatorio_cientifico_template.md` e `reports/update_report.py`: montam o relatório principal a partir dos CSVs; `generate_pdf.py`: renderiza e sincroniza os PDFs.
+- `tests/`: regressões de leitura, rejeição, cronologia, estatística, filtragem e dimensões da rede.
 
-### 2. Auditoria Anti-Viés e Curva Temporal
-![Auditoria Anti-Viés](results/figures/painel_auditoria_anti_vies_metodologico.png)
-*A: Teste A/A confirmando estacionariedade no repouso ($47.8\%$). B: Importância de variáveis no modelo interpretável (wPLI Alfa e bandas dominam). C: Decaimento da probabilidade nas sessões pós-estímulo.*
+## Limites e continuidade
 
----
+Os próximos passos científicos exigem marcadores de áudio e qualidade de contato, sessões replicadas e contrabalanceadas com controle acústico, hipóteses pré-especificadas e inferência que respeite a dependência temporal. Uma única permutação por fold é apenas diagnóstico. Previsões nas pós-sessões não medem “retorno ao repouso”. O teste A/A histórico não foi repetido e não prova ausência de deriva.
 
-## 🔬 Referências Bibliográficas
-
-1. **Gao, X., Cao, H., Ming, D., et al. (2014).** Analysis of EEG activity in response to binaural beats with different frequencies. *International Journal of Psychophysiology*, 94(3), 399–406.
-2. **Ingendoh, R. M., Posny, E. S., & Heine, T. (2023).** Binaural beats to entrain the brain? A systematic review of the effects of binaural beat stimulation on brain oscillatory activity. *PLOS ONE*, 18(5), e0286023.
-3. **Lawhern, V. J., Solon, A. J., Waytowich, N. R., et al. (2018).** EEGNet: a compact convolutional neural network for EEG-based brain–computer interfaces. *Journal of Neural Engineering*, 15(5), 056013.
-4. **Vinck, M., Oostenveld, R., van Wingerden, M., et al. (2011).** An improved index of phase-synchronization for electrophysiological data in the presence of volume-conduction, noise and sample-size bias. *NeuroImage*, 55(4), 1548–1565.
-5. **Davidson, R. J. (2004).** What does the cerebral cortex do in affect? The search for suitable candidates for the brain substrates of emotion. *American Psychologist*, 59(9), 830–841.
-6. **Smith, E. E., Reznik, S. J., Stewart, J. L., & Allen, J. J. (2017).** Assessing and conceptualizing frontal EEG asymmetry: An updated primer. *International Journal of Psychophysiology*, 111, 98–114.
-7. **Liégeois, R., et al. (2019).** Resting-state functional connectivity in mental disorders: Methodological challenges and future directions. *NeuroImage: Clinical*, 23, 101880.
-
----
-
-## 📄 Licença
-Distribuído sob licença MIT. Consulte `LICENSE` para mais informações.
+As referências verificadas e o detalhamento dos resultados estão no relatório. Licença MIT para o código: ver `LICENSE`.

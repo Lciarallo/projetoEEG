@@ -1,6 +1,6 @@
 """
-Módulo de Conectividade Funcional Imune a Condução de Volume (wPLI)
-com Teste de Significância por Substitutos de Fase (Surrogate Testing de Monte Carlo).
+Índice de defasagem ponderado com menor sensibilidade a componentes de fase zero.
+O teste exploratório usa inversões de sinal, não randomização de fases de Fourier.
 """
 
 import numpy as np
@@ -9,8 +9,10 @@ from scipy import signal
 def compute_wpli_epoch_based(epochs, ch1_idx=0, ch2_idx=1, fs=200, band=(8.0, 13.0)):
     """
     Calcula o Weighted Phase Lag Index (wPLI) inter-épocas entre dois canais (Vinck et al., 2011).
-    A métrica quantifica defasagens assimétricas de fase que não podem ser explicadas por condução de volume.
+    Variante baseada na média imaginária de Hilbert por época; não é wPLI espectral debiased.
     """
+    if epochs.ndim != 3 or len(epochs) < 2 or not np.isfinite(epochs).all():
+        raise ValueError("wPLI requer pelo menos duas épocas finitas")
     n_ep, ep_len, n_ch = epochs.shape
     sos = signal.butter(4, list(band), btype='bandpass', fs=fs, output='sos')
     
@@ -30,6 +32,9 @@ def wpli_surrogate_test(im_diffs, n_surrogates=1000, seed=42):
     (destrói o acoplamento de fase consistente preservando a amplitude).
     Retorna: p-valor empírico, Z-score e percentil 95 da distribuição nula.
     """
+    im_diffs = np.asarray(im_diffs, dtype=float)
+    if im_diffs.ndim != 1 or len(im_diffs) < 2 or not np.isfinite(im_diffs).all() or n_surrogates < 1:
+        raise ValueError("Amostras ou número de substitutos inválidos")
     rng = np.random.RandomState(seed)
     n_ep = len(im_diffs)
     wpli_real = np.abs(np.mean(im_diffs)) / (np.mean(np.abs(im_diffs)) + 1e-12)

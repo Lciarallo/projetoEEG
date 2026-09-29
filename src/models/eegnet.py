@@ -1,5 +1,5 @@
 """
-Implementação da arquitetura EEGNet (Lawhern et al., 2018 - Journal of Neural Engineering).
+Variante inspirada na EEGNet (Lawhern et al., 2018), com classificador MLP adicional.
 Inclui convolução temporal, convolução espacial depthwise com restrição MaxNorm e
 convolução depthwise separável verdadeira.
 """
@@ -45,7 +45,8 @@ class EEGNet(nn.Module):
         self.drop2 = nn.Dropout(0.25)
         
         # Classificador Linear
-        flatten_dim = F2 * (samples // 32)
+        temporal_len = samples + 2 * (kernel_length // 2) - kernel_length + 1
+        flatten_dim = F2 * ((temporal_len // 4 + 1) // 8)
         self.classifier = nn.Sequential(
             nn.Flatten(),
             nn.Linear(flatten_dim, 32),

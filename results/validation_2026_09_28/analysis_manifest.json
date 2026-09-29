@@ -1,0 +1,60 @@
+{
+  "generated_utc": "2026-09-28T05:34:36.720276+00:00",
+  "seed": 20260928,
+  "versions": {
+    "numpy": "2.4.4",
+    "scipy": "1.17.1",
+    "pandas": "3.0.3",
+    "mne": "1.13.2",
+    "scikit-learn": "1.8.0"
+  },
+  "code_and_local_data_sha256": {
+    "src/preprocessing.py": "173fdfa5a2d79c1444510ab73f062e09e1029a7229f6ab3724b6e99f253f998f",
+    "src/connectivity.py": "43a2dd86b9190999f9897c007ebdd385a2c79b44ec6ddce216d795fa5de63df5",
+    "src/asymmetry.py": "02c02be1716c7e7e85ca5220688c4c08f5d48aeaceea96ce2cb693794e0a3b64",
+    "src/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/validation.py": "627922264ee49990202920146b2062cb15bb04f359202b69776d808fe0452131",
+    "src/study.py": "ec642fb2271be1164eff41e0bf8f141fa9d98af1dd4d47706c90be0b9ed57ffc",
+    "src/features.py": "3a0504b245e003acc4231033efe7899c3b85e6546b6b58ca4e06aa0ca39535c5",
+    "src/decoding.py": "b84b6284d2f1c370590a8eed90ace059d5da0a7516eac8be17f5f3e839de435e",
+    "src/relaxation.py": "a9492f99bca2ba52e9d292b7e3dce1dc68fc0129b296a1865af10906eb47bc68",
+    "src/models/eegnet.py": "481678f7725e7a5c8e3d7ab6c3255251a21bc91ec4f03c95e28dd424c3a25817",
+    "src/models/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/pipelines/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/pipelines/run_electrophysiology.py": "85c867b2ce29360f29b337c08e7aee922f2d7c1819a3943117f28fe01cbfcd6e",
+    "src/pipelines/run_eegnet_gpu.py": "e131160942b480db19aff6e55f579ce9f0f9a2c89a995fce9f8b4dc840fe8d19",
+    "src/pipelines/run_anti_bias_audit.py": "6f75cee58f56748fad50bc7be070e9afdf98212acfb0ceba99e2c898b4688966",
+    "src/pipelines/fetch_validation_data.py": "c83fa160310487aae8c7d500d76bc4d94a8664ac7fb11fe09854d918b603ab7a",
+    "src/pipelines/run_external_validation.py": "4665da7cb37c816c78cd3f3692bc088da89d4e4a4c045b84f6c25590e4d28476",
+    "data/raw/OpenBCI-RAW-2023-11-28_15-56-59.txt": "4e85f439e58c30069416711f06f252b2622e029ebfc9f985df2387ef177521bd",
+    "data/raw/OpenBCI-RAW-2023-11-28_16-04-54.txt": "72a08784e003025b3da3497a3593a7cf44ce11e9ba6277fe677935d8cb12fa2a",
+    "data/raw/OpenBCI-RAW-2023-11-28_16-36-02.txt": "9dedf909bc8554940b557278f4eb87b2d158979a7fc08b635b11788fcc13c613",
+    "data/raw/OpenBCI-RAW-2023-11-28_16-44-15.txt": "8c7d428f91778bf1b9fb4e0e394b70dff7576c9ff94d987281aece68d6bc2376"
+  },
+  "external_manifest_sha256": "442881ca0b6471f8909d452b264b3041004dbadf486a4a534e5f2e674147cfe3",
+  "parameters": {
+    "metrics": [
+      "alpha_rel",
+      "theta_rel",
+      "log_alpha_lowbeta",
+      "faa"
+    ],
+    "fs": 200,
+    "band": [
+      1,
+      30
+    ],
+    "epoch_s": 2,
+    "edge_s": 2,
+    "primary_threshold_uv": 150,
+    "primary_notch20": false,
+    "minimum_external_epochs": 14,
+    "permutations": 199,
+    "eegmat_window_s": 60,
+    "local_window_s": 300,
+    "local_bootstrap_block_s": [
+      30,
+      60
+    ]
+  }
+}

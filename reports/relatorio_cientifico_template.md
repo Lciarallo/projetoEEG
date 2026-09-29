@@ -16,14 +16,9 @@ A [EEGMAT 1.0.0](https://physionet.org/content/eegmat/1.0.0/) contém registros 
 
 ## 2. Integridade e cronologia local
 
-| Arquivo / condição | Amostras | Duração gravada | Lacuna anterior |
-| --- | --- | --- | --- |
-| Base | 69786 | 349.0 s | - |
-| BB | 245118 | 1226.7 s | 125.4 s |
-| Pós 1 | 62216 | 311.1 s | 642.0 s |
-| Pós 2 | 63776 | 318.9 s | 181.2 s |
+{{ACQUISITION_TABLE}}
 
-Os intervalos vêm dos timestamps Unix dos CSVs. Existem **642 s (10 min 42 s) sem EEG entre o fim do arquivo BB e o início do Pós 1**. Como não se sabe quando o áudio foi desligado, “recuperação imediata” não é uma interpretação verificável. Timestamps repetem-se em aproximadamente metade das linhas, sem regressão observada na auditoria; as análises usam a ordem das amostras e 200 Hz nominais. Não há registro independente de olhos abertos/fechados, impedância, intensidade sonora ou movimento ocular.
+Os intervalos vêm dos timestamps Unix dos CSVs. Existem **{{GAP_BB_POST_TEXT}} sem EEG entre o fim do arquivo BB e o início do Pós 1**. Como não se sabe quando o áudio foi desligado, “recuperação imediata” não é uma interpretação verificável. Timestamps repetem-se em aproximadamente metade das linhas, sem regressão observada na auditoria; as análises usam a ordem das amostras e 200 Hz nominais. Não há registro independente de olhos abertos/fechados, impedância, intensidade sonora ou movimento ocular.
 
 ## 3. Métodos e unidades de análise
 
@@ -35,27 +30,11 @@ Nos dados externos, primeiro se agrega por pessoa e condição. Os testes reescr
 
 ## 4. EEG local e seleção de épocas
 
-| Condição | Épocas válidas / 148 | Alfa relativo | Theta relativo | ln(alfa/beta baixa) | FAA |
-| --- | --- | --- | --- | --- | --- |
-| Base | 142/148 | 11.19% | 15.78% | 0.703 | -0.247 |
-| BB 1 | 74/148 | 9.57% | 14.79% | 0.383 | -0.389 |
-| BB 2 | 80/148 | 10.53% | 15.94% | 0.624 | -0.514 |
-| BB 3 | 106/148 | 10.19% | 16.38% | 0.461 | -0.412 |
-| BB 4 | 103/148 | 7.51% | 15.15% | 0.549 | -0.614 |
-| Pós 1 | 143/148 | 9.71% | 12.38% | 0.556 | -0.537 |
-| Pós 2 | 124/148 | 12.72% | 15.01% | 0.600 | -0.376 |
+{{LOCAL_TABLE}}
 
 São **medianas de épocas retidas**, não medidas de relaxamento. A retenção difere muito entre condições. Para verificar essa seleção, calculei alfa médio por bloco cronológico de 30 s e apliquei dois cortes mínimos. Δ é a diferença entre a média dos blocos da condição e da Base, em pontos percentuais:
 
-| Condição | Blocos ≥50% | Δ alfa ≥50% (p.p.) | Blocos ≥80% | Δ alfa ≥80% (p.p.) |
-| --- | --- | --- | --- | --- |
-| Base | 10 | +0.00 | 9 | +0.00 |
-| BB 1 | 5 | -2.39 | 1 | -4.61 |
-| BB 2 | 7 | -2.47 | 1 | -1.28 |
-| BB 3 | 8 | -1.60 | 5 | -2.14 |
-| BB 4 | 8 | -4.78 | 4 | -4.59 |
-| Pós 1 | 10 | -1.89 | 9 | -1.38 |
-| Pós 2 | 9 | +1.37 | 7 | +1.89 |
+{{QUALITY_TABLE}}
 
 Com 80% de retenção, BB 1 e BB 2 têm **um bloco aproveitável cada**; o valor não representa a condição inteira. BB 3 e BB 4 mantêm a direção negativa com cinco e quatro blocos. Blocos adjacentes continuam correlacionados, e a regra de seleção altera os trechos avaliados. Com uma gravação por condição não cabe p local confirmatório. A descrição do Pós também não demonstra retorno ao repouso, pois a latência desde o desligamento do áudio é desconhecida.
 
@@ -65,56 +44,31 @@ Com 80% de retenção, BB 1 e BB 2 têm **um bloco aproveitável cada**; o valor
 
 Diferença positiva significa repouso maior que cálculo mental. Alfa e theta são mostrados em pontos percentuais de potência relativa; razão alfa/beta e FAA ficam em unidades logarítmicas.
 
-| Indicador | Pessoas | Repouso - tarefa, média | p Holm |
-| --- | --- | --- | --- |
-| Alfa relativo | 36 | +5.69 p.p. | 0.00032 |
-| Theta relativo | 36 | -2.16 p.p. | 0.01467 |
-| ln(alfa/beta baixa) | 36 | +0.07 | 0.50680 |
-| FAA relativa | 36 | +0.03 | 0.50680 |
+{{EEGMAT_TABLE}}
 
 O alfa foi maior no repouso em 27 das 36 pessoas. A direção persiste ao trocar a janela de repouso:
 
-| Repouso | Pessoas | Alfa repouso - tarefa | Direção positiva |
-| --- | --- | --- | --- |
-| Primeiros 60 s | 36 | +6.22 p.p. | 27/36 |
-| Últimos 60 s | 36 | +5.69 p.p. | 27/36 |
+{{WINDOW_TABLE}}
 
-Essas janelas são sensibilidades escolhidas após a primeira análise. A limpeza anterior pelos autores, os eletrodos e a tarefa diferem do piloto. A regressão logística com uma pessoa inteira fora do treino por fold obteve **58.33% de acurácia balanceada** (ROC-AUC 0.614; p de 199 permutações por pessoa = 0.075). Isso não valida um detector individual de relaxamento. As probabilidades transferidas ao piloto não são “percentual de relaxamento”.
+Essas janelas são sensibilidades escolhidas após a primeira análise. A limpeza anterior pelos autores, os eletrodos e a tarefa diferem do piloto. A regressão logística com uma pessoa inteira fora do treino por fold obteve **{{MODEL_BALANCED}}% de acurácia balanceada** (ROC-AUC {{MODEL_AUC}}; p de {{MODEL_PERMUTATIONS}} permutações por pessoa = {{MODEL_P}}). Isso não valida um detector individual de relaxamento. As probabilidades transferidas ao piloto não são “percentual de relaxamento”.
 
 ## 6. Binaural versus monaural em Sudre
 
 Diferença positiva significa escore C1 maior que C0. Na codificação do artigo, valores maiores de PA, CT e PT indicam mais relaxamento, embora CT/PT mencionem “tensão”. As contagens vêm dos arquivos disponíveis; diferem parcialmente da amostra publicada, cujas exclusões não puderam ser reconstruídas integralmente.
 
-| Grupo / escala | Pares | C1 - C0, média | p Holm |
-| --- | --- | --- | --- |
-| G6 / PA | 22 | -1.64 | 1.000 |
-| G6 / CT | 22 | +0.73 | 1.000 |
-| G6 / PT | 22 | -0.55 | 1.000 |
-| G40 / PA | 19 | -3.21 | 1.000 |
-| G40 / CT | 19 | +2.11 | 1.000 |
-| G40 / PT | 19 | -0.58 | 1.000 |
+{{QUESTIONNAIRE_TABLE}}
 
 Nenhuma das seis escalas apresentou contraste conclusivo após Holm. Comparar C1 com C0 pergunta pela **vantagem específica do binaural sobre outro áudio**. Comparar qualquer áudio com avaliação anterior responde a outra pergunta. Não encontrar vantagem C1-C0 não prova ineficácia geral nem equivalência.
 
 No EEG, subtraiu-se a base de ruído de cada condição e comparou-se a média dos três blocos de estímulo C1-C0. A seleção estrita exige F3, Fz e F4 em todas as fases; a sensibilidade usa só Fz:
 
-| Grupo | Canais | Pares | Delta alfa C1 - C0 | p Holm |
-| --- | --- | --- | --- | --- |
-| G6 | F3/Fz/F4 | 7 | -0.0209 | 0.156 |
-| G6 | Fz | 13 | -0.0102 | 0.313 |
-| G40 | F3/Fz/F4 | 5 | -0.0078 | 0.562 |
-| G40 | Fz | 17 | +0.0023 | 0.649 |
+{{SENSOR_TABLE}}
 
-A alternativa Fz muda simultaneamente participantes e canais. Em G40 a média muda de sinal, sem permitir atribuir a mudança somente ao sensor. A associação alfa-CT, com permutação exata por pessoa, não foi conclusiva: G6, N=7, rho=0.364, p Holm=0.467; G40, N=5, rho=-0.700, p Holm=0.467.
+A alternativa Fz muda simultaneamente participantes e canais. Em G40 a média muda de sinal, sem permitir atribuir a mudança somente ao sensor. A associação alfa-CT, com permutação exata por pessoa, não foi conclusiva: G6, N={{CORR_G6_N}}, rho={{CORR_G6_RHO}}, p Holm={{CORR_G6_P}}; G40, N={{CORR_G40_N}}, rho={{CORR_G40_RHO}}, p Holm={{CORR_G40_P}}.
 
 A diferença CT C1-C0 conforme a ordem dos sons foi:
 
-| Grupo | Posição de C1 | Pessoas | CT C1 - C0, média |
-| --- | --- | --- | --- |
-| G6 | Antes de C0 | 12 | +1.08 |
-| G6 | Depois de C0 | 10 | +0.30 |
-| G40 | Antes de C0 | 11 | -1.00 |
-| G40 | Depois de C0 | 8 | +6.38 |
+{{ORDER_TABLE}}
 
 A ordem foi randomizada no estudo original, mas estes subconjuntos são pequenos e a estratificação é posterior. A divergência descritiva não prova efeito de ordem; justifica medir e contrabalancear a sequência na próxima coleta.
 
@@ -122,24 +76,13 @@ A ordem foi randomizada no estudo original, mas estes subconjuntos são pequenos
 
 O índice de defasagem F3-F4 da auditoria é uma variante por época da parte imaginária de Hilbert, **não o wPLI espectral debiased**. Suas inversões de sinal por época pressupõem intercambialidade apesar da dependência temporal:
 
-| Condição | Índice de defasagem | p Holm (7) |
-| --- | --- | --- |
-| Base | 0.286 | 0.1259 |
-| BB 1 | 0.260 | 0.7512 |
-| BB 2 | 0.390 | 0.0909 |
-| BB 3 | 0.308 | 0.1349 |
-| BB 4 | 0.107 | 1.0000 |
-| Pós 1 | 0.139 | 0.9770 |
-| Pós 2 | 0.033 | 1.0000 |
+{{CONNECTIVITY_TABLE}}
 
-O menor p ajustado é 0.0909. Esses testes ocorrem **dentro de cada condição**, sem comparação direta BB-Base. O limiar de rejeição de 150 ou 500 µV altera os índices, inclusive o da Base. Diferença entre uma linha significativa e outra não significativa também não testaria a diferença entre condições.
+O menor p ajustado é {{CONNECTIVITY_MIN_P}}. Esses testes ocorrem **dentro de cada condição**, sem comparação direta BB-Base. O limiar de rejeição de 150 ou 500 µV altera os índices, inclusive o da Base. Diferença entre uma linha significativa e outra não significativa também não testaria a diferença entre condições.
 
 Os classificadores temporais diagnosticam discriminação entre dois arquivos:
 
-| Modelo | Acurácia balanceada (média ± DP) | Controle diagnóstico | ROC-AUC |
-| --- | --- | --- | --- |
-| EEGNet | 64.9% ± 21.0 p.p. | 50.9% | 0.708 |
-| Random Forest | 69.8% ± 14.3 p.p. | 50.8% | 0.798 |
+{{CLASSIFIER_TABLE}}
 
 Os seis folds compartilham conjuntos de treino; o desvio é entre folds, não intervalo populacional. Cada classe corresponde a um arquivo e uma posição na sequência. A filtragem bidirecional da sessão completa também impede afirmar independência completa do pré-processamento. Acurácia acima do acaso não prova efeito binaural ou relaxamento.
 

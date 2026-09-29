@@ -1,0 +1,15 @@
+family,group,metric,n,mean_difference,p_signflip,method,p_holm_within_family
+EEGMAT rest-task,all,alpha_rel,36,0.056853448997418794,8e-05,monte_carlo_99999,0.00032
+EEGMAT rest-task,all,theta_rel,36,-0.02158241617214719,0.00489,monte_carlo_99999,0.01467
+EEGMAT rest-task,all,log_alpha_lowbeta,36,0.0707251090499677,0.2534,monte_carlo_99999,0.5068
+EEGMAT rest-task,all,faa,36,0.031358545801388873,0.36534,monte_carlo_99999,0.5068
+Sudre questionnaire C1-C0,G6,PA,22,-1.6363636363636365,0.45696,monte_carlo_99999,1.0
+Sudre questionnaire C1-C0,G6,CT,22,0.7272727272727273,0.4392,monte_carlo_99999,1.0
+Sudre questionnaire C1-C0,G6,PT,22,-0.5454545454545454,0.65231,monte_carlo_99999,1.0
+Sudre EEG F3/Fz/F4 C1-C0,G6,alpha_delta,7,-0.020949200078161808,0.078125,exact,0.15625
+Sudre EEG Fz C1-C0,G6,alpha_delta,13,-0.010158683795061182,0.15673828125,exact,0.3134765625
+Sudre questionnaire C1-C0,G40,PA,19,-3.210526315789474,0.42133,monte_carlo_99999,1.0
+Sudre questionnaire C1-C0,G40,CT,19,2.1052631578947367,0.24588,monte_carlo_99999,1.0
+Sudre questionnaire C1-C0,G40,PT,19,-0.5789473684210527,0.56727,monte_carlo_99999,1.0
+Sudre EEG F3/Fz/F4 C1-C0,G40,alpha_delta,5,-0.007823089895218942,0.5625,exact,0.5625
+Sudre EEG Fz C1-C0,G40,alpha_delta,17,0.0023265009261683386,0.6486663818359375,exact,0.6486663818359375

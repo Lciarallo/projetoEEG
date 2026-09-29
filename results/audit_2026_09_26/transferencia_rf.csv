@@ -1,0 +1,5 @@
+sessao,epocas,prob_classe_bb,fracao_classe_bb,avaliacao
+Base,163,0.21613192090762195,0.012269938650306749,in_sample
+BB,564,0.8417700018336671,0.8971631205673759,in_sample
+Pós 1,147,0.8268091741387215,0.9659863945578231,out_of_session_sem_rotulo_validado
+Pós 2,154,0.5907976637139775,0.6038961038961039,out_of_session_sem_rotulo_validado

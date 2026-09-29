@@ -12,8 +12,20 @@ CHANNELS = ['F3', 'F4', 'P3/O1', 'P4/O2']
 
 def load_raw_openbci(filepath):
     """Carrega as colunas EXG 0 a 3 de arquivos CSV salvos pelo OpenBCI GUI."""
-    df = pd.read_csv(filepath, skiprows=1, header=None, comment='%', usecols=[1, 2, 3, 4])
-    return df.to_numpy(dtype=float)
+    columns = pd.read_csv(filepath, comment='%', nrows=0).columns
+    normalized = {column.strip(): column for column in columns}
+    selected = []
+    for index in range(4):
+        name = next((normalized[candidate] for candidate in
+                     (f'EXG Channel {index}', f'EXG {index}') if candidate in normalized), None)
+        if name is None:
+            raise ValueError(f'Coluna EXG {index} ausente: {filepath}')
+        selected.append(name)
+    df = pd.read_csv(filepath, comment='%', usecols=selected)
+    raw = df[selected].to_numpy(dtype=float)
+    if raw.ndim != 2 or raw.shape[1] != 4 or len(raw) == 0 or not np.isfinite(raw).all():
+        raise ValueError(f"Dados EXG vazios ou não finitos: {filepath}")
+    return raw
 
 def apply_filters(raw_data, fs=FS, notch_grid=60.0, filter_alias_harmonics=True, bp_band=(1.0, 45.0)):
     """
@@ -25,6 +37,11 @@ def apply_filters(raw_data, fs=FS, notch_grid=60.0, filter_alias_harmonics=True,
        - 120 Hz (2º harmônico) dobra em |120 - 200| = 80 Hz sob fs=200 Hz.
     4. Filtro Passa-Faixa Butterworth 1-45 Hz de 4ª ordem em Seções de Segunda Ordem (SOS).
     """
+    raw_data = np.asarray(raw_data, dtype=float)
+    if raw_data.ndim != 2 or len(raw_data) < 32 or not np.isfinite(raw_data).all():
+        raise ValueError("A filtragem requer uma matriz finita com pelo menos 32 amostras")
+    if not 0 < bp_band[0] < bp_band[1] < fs / 2 or not 0 < notch_grid < fs / 2:
+        raise ValueError("Frequências de filtragem fora do intervalo permitido")
     # 1. Detrend linear
     d = signal.detrend(raw_data, axis=0)
     
@@ -34,10 +51,12 @@ def apply_filters(raw_data, fs=FS, notch_grid=60.0, filter_alias_harmonics=True,
     
     # 3. Notches de Aliasing (rebatimento de harmônicos superiores à Nyquist de 100 Hz)
     if filter_alias_harmonics:
-        b20, a20 = signal.iirnotch(20.0, 30.0, fs=fs)
-        d = signal.filtfilt(b20, a20, d, axis=0)
-        b80, a80 = signal.iirnotch(80.0, 30.0, fs=fs)
-        d = signal.filtfilt(b80, a80, d, axis=0)
+        # Hipóteses de aliasing, não identificação da origem do pico.
+        for harmonic in (2, 3):
+            alias = abs((harmonic * notch_grid + fs / 2) % fs - fs / 2)
+            if 0 < alias < fs / 2:
+                b, a = signal.iirnotch(alias, 30.0, fs=fs)
+                d = signal.filtfilt(b, a, d, axis=0)
         
     # 4. Passa-faixa 1-45 Hz (SOS fase zero)
     sos = signal.butter(4, list(bp_band), btype='bandpass', fs=fs, output='sos')
@@ -50,7 +69,12 @@ def segment_epochs(clean_data, fs=FS, epoch_sec=2.0, threshold_frontal_p2p=500.0
     - Rejeita se amplitude pico-a-pico frontal (F3 ou F4) > threshold_frontal_p2p (ex.: espasmo muscular, movimento brusco).
     - Rejeita se amplitude pico-a-pico frontal < min_p2p (desconexão ou flatline).
     """
+    clean_data = np.asarray(clean_data, dtype=float)
     ep_len = int(epoch_sec * fs)
+    if clean_data.ndim != 2 or clean_data.shape[1] < 2 or ep_len < 1:
+        raise ValueError("Dimensões ou duração de época inválidas")
+    if not 0 <= min_p2p < threshold_frontal_p2p:
+        raise ValueError("Limiares de rejeição inválidos")
     n_epochs = clean_data.shape[0] // ep_len
     
     valid_epochs = []
@@ -60,10 +84,10 @@ def segment_epochs(clean_data, fs=FS, epoch_sec=2.0, threshold_frontal_p2p=500.0
         ep = clean_data[i*ep_len : (i+1)*ep_len, :]
         p2p_frontal = np.ptp(ep[:, :2], axis=0)
         
-        if np.any(p2p_frontal > threshold_frontal_p2p) or np.any(p2p_frontal < min_p2p):
+        if not np.isfinite(ep).all() or np.any(p2p_frontal > threshold_frontal_p2p) or np.any(p2p_frontal < min_p2p):
             continue
             
         valid_epochs.append(ep)
         valid_indices.append(i)
         
-    return np.array(valid_epochs), valid_indices
+    return np.asarray(valid_epochs).reshape(-1, ep_len, clean_data.shape[1]), np.asarray(valid_indices, dtype=int)

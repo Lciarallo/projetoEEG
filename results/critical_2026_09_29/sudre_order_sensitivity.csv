@@ -1,0 +1,13 @@
+group,metric,order,n,mean_difference,median_difference
+G6,PA,C1 antes de C0,12,0.75,-1.5
+G6,PA,C1 depois de C0,10,-4.5,-2.5
+G6,CT,C1 antes de C0,12,1.0833333333333333,1.0
+G6,CT,C1 depois de C0,10,0.3,-0.5
+G6,PT,C1 antes de C0,12,-1.0833333333333333,-0.5
+G6,PT,C1 depois de C0,10,0.1,0.5
+G40,PA,C1 antes de C0,11,-8.454545454545455,-10.0
+G40,PA,C1 depois de C0,8,4.0,5.5
+G40,CT,C1 antes de C0,11,-1.0,0.0
+G40,CT,C1 depois de C0,8,6.375,4.5
+G40,PT,C1 antes de C0,11,-2.727272727272727,-2.0
+G40,PT,C1 depois de C0,8,2.375,2.0
