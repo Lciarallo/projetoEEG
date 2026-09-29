@@ -4,13 +4,13 @@
 
 ## Resumo
 
-**Os dados não demonstram que o áudio binaural causou relaxamento.** Há diferenças de EEG entre arquivos, porém condição, ordem e arquivo coincidem. No piloto faltam áudio controle, medida subjetiva de relaxamento e marcador independente do áudio. Épocas e blocos de uma pessoa não são réplicas independentes.
+**O efeito do áudio binaural sobre o relaxamento desta pessoa permanece indeterminado.** O programa antigo exibiu “Aproximação/Relaxamento” nos quatro blocos com áudio, mas também na linha de base, antes do áudio. Reproduzimos esse resultado dos arquivos brutos. Há diferenças de EEG ao longo da sessão; elas não permitem afirmar que o som causou relaxamento, nem que não teve efeito. Condição, ordem temporal e arquivo coincidem, e faltam áudio controle, medida direta de relaxamento e marcador independente do som. Épocas e blocos de uma pessoa não são réplicas independentes.
 
 O alfa frontal relativo foi menor nos quatro blocos rotulados BB que na Base. Ao exigir 80% de épocas válidas por bloco de 30 s, BB 1 e BB 2 ficam com apenas um bloco cada; BB 3 e BB 4 mantêm quedas descritivas. Na EEGMAT, alfa distingue repouso de cálculo mental em 36 pessoas, mas essa base não mede relaxamento percebido. Nos dados de [Sudre et al. (2024)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0306427), o contraste binaural-monaural não forneceu vantagem conclusiva nesta reanálise. Ausência de significância não demonstra equivalência.
 
 ## 1. Pergunta e desenho
 
-A pergunta é **se o binaural altera o relaxamento**. Para respondê-la é preciso comparar com áudio controle em sessões repetidas e medir relaxamento diretamente. Os quatro CSVs locais são rotulados Base, BB, Pós 1 e Pós 2. A atribuição a uma pessoa, a montagem e os nomes das condições vêm da documentação; não há marcador de estímulo no sinal que os confirme. A posição dos canais posteriores P3/O1 e P4/O2 é ambígua.
+A pergunta é **se o binaural altera o relaxamento**. Três resultados precisam ser separados: (1) os registros de EEG têm diferenças descritivas; (2) o programa antigo atribuiu um rótulo de “Estado”; (3) a sensação de relaxamento e a causa de uma eventual mudança não foram medidas de modo que possam ser identificadas. Para avaliar um efeito causal específico, seria preciso comparar com áudio controle em sessões repetidas e medir relaxamento diretamente. Os quatro CSVs locais são rotulados Base, BB, Pós 1 e Pós 2. A atribuição a uma pessoa, a montagem e os nomes das condições vêm da documentação; não há marcador de estímulo no sinal que os confirme. A posição dos canais posteriores P3/O1 e P4/O2 é ambígua.
 
 A [EEGMAT 1.0.0](https://physionet.org/content/eegmat/1.0.0/) contém registros antes e durante cálculo mental: testa descritores entre tarefas, sem validar uma escala de relaxamento. [Sudre et al.](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0306427) disponibilizaram questionários e potências de EEG derivadas para áudio monaural C0 e binaural C1, em grupos de 6 e 40 Hz. É um contraste acústico pertinente, com protocolo, participantes e canais diferentes dos do piloto. O [plano externo](plano_validacao_externa.md) foi escrito antes dos resultados de 28/09; as sensibilidades de 29/09 são posteriores e exploratórias.
 
@@ -23,7 +23,7 @@ A [EEGMAT 1.0.0](https://physionet.org/content/eegmat/1.0.0/) contém registros 
 | Pós 1 | 62216 | 311.1 s | 642.0 s |
 | Pós 2 | 63776 | 318.9 s | 181.2 s |
 
-Os intervalos vêm dos timestamps Unix dos CSVs. Existem **642 s (10 min 42 s) sem EEG entre o fim do arquivo BB e o início do Pós 1**. Como não se sabe quando o áudio foi desligado, “recuperação imediata” não é uma interpretação verificável. Timestamps repetem-se em aproximadamente metade das linhas, sem regressão observada na auditoria; as análises usam a ordem das amostras e 200 Hz nominais. Não há registro independente de olhos abertos/fechados, impedância, intensidade sonora ou movimento ocular.
+Os intervalos vêm dos timestamps Unix dos CSVs. Existem **642 s (10 min 42 s) sem EEG entre o fim do arquivo BB e o início do Pós 1**. Como não se sabe quando o áudio foi desligado, “recuperação imediata” não é uma interpretação verificável. Mesmo supondo reprodução contínua durante todo o arquivo BB, a ausência de marcador impede verificar o instante real do estímulo e a ausência de uma condição acústica controle impede separar o efeito binaural de outros efeitos de ouvir um som. Timestamps repetem-se em aproximadamente metade das linhas, sem regressão observada na auditoria; as análises usam a ordem das amostras e 200 Hz nominais. Não há registro independente de olhos abertos/fechados, impedância, intensidade sonora ou movimento ocular.
 
 ## 3. Métodos e unidades de análise
 
@@ -33,7 +33,27 @@ A auditoria eletrofisiológica anterior usa outro processamento: notch de 60 Hz,
 
 Nos dados externos, primeiro se agrega por pessoa e condição. Os testes reescritos usam a média das diferenças pareadas e inversões bilaterais do sinal **dentro de cada pessoa**: exatas até 17 pares e por 99.999 sorteios fixos nas amostras maiores. Holm corrige, separadamente, quatro indicadores EEGMAT, seis questionários Sudre, dois contrastes de EEG F3/Fz/F4 e dois de Fz. A interpretação pressupõe intercambialidade dos rótulos. A ordem repouso→tarefa foi fixa na EEGMAT; em Sudre podem existir efeitos de período e da sessão anterior. Esses testes posteriores não são confirmação pré-registrada.
 
-## 4. EEG local e seleção de épocas
+## 4. Estados exibidos pelo programa antigo e EEG local
+
+Em [compute_frontal_alpha_asymmetry.py](../legacy/compute_frontal_alpha_asymmetry.py), o “Estado” é uma regra aplicada à assimetria alfa frontal (FAA) de **potência absoluta**: `FAA = ln(alfa F4) - ln(alfa F3)`. Para `FAA > 0`, o programa escreve **“Predomínio Esquerdo (Aproximação/Relaxamento)”**; nos demais casos, **“Predomínio Direito (Evitação/Alerta)”**. Ele não recebe dados do reprodutor de áudio, não foi calibrado contra relatos de calma e não calcula a mudança de estado causada pelo som. A tabela abaixo reproduz a [saída histórica](../results/tables/tabela_assimetria_alfa_frontal.csv) diretamente dos quatro arquivos brutos; a última coluna usa a mesma regra da curva temporal do programa e conta janelas móveis de 8 s, com passo de 2 s, **inteiramente contidas em cada condição**. Consulte a [auditoria reproduzível](../results/critical_2026_09_29/legacy_state_audit.csv).
+
+| Condição | FAA legado | Estado exibido | Janelas 8 s com FAA > 0 |
+| --- | --- | --- | --- |
+| Base | +1.956 | Aproximação/Relaxamento | 47/171 (27.5%) |
+| BB 1 | +0.465 | Aproximação/Relaxamento | 106/146 (72.6%) |
+| BB 2 | +3.221 | Aproximação/Relaxamento | 109/146 (74.7%) |
+| BB 3 | +1.620 | Aproximação/Relaxamento | 101/146 (69.2%) |
+| BB 4 | +1.748 | Aproximação/Relaxamento | 74/146 (50.7%) |
+| Pós 1 | +4.259 | Aproximação/Relaxamento | 20/152 (13.2%) |
+| Pós 2 | +1.977 | Aproximação/Relaxamento | 54/156 (34.6%) |
+
+**Leitura do rótulo:** todas as sete condições receberam “Aproximação/Relaxamento”, inclusive a Base. Portanto, a tabela do programa **não registra uma passagem de “não relaxado” para “relaxado” quando o áudio começa**. Ela também não significa que a pessoa permaneceu nesse estado ao longo de toda a gravação: na Base, 47 de 171 janelas móveis tiveram FAA positiva; no Pós 1, apenas 20 de 152, apesar do rótulo positivo da condição inteira. Isso ocorre porque o FAA da condição usa o logaritmo da razão de potências agregadas, enquanto a coluna de janelas conta sinais calculados separadamente. Janelas sobrepostas não são observações independentes, e o programa antigo não rejeita épocas por amplitude. Esses números descrevem a saída do algoritmo, sem teste válido do efeito do áudio.
+
+O nome “Relaxamento” no rótulo excede o que a FAA identifica. Em um [experimento com indução de raiva](https://pubmed.ncbi.nlm.nih.gov/11374750/), maior atividade frontal esquerda acompanhou raiva e comportamento de aproximação; logo, a direção da assimetria não é exclusiva de calma. O [estudo de Barry et al.](https://pubmed.ncbi.nlm.nih.gov/17911042/) mostra que abrir ou fechar os olhos altera a potência alfa; o estado dos olhos não foi registrado neste piloto. Essas fontes sustentam a necessidade de medir diretamente a experiência da pessoa e controlar o protocolo, sem indicar qual fator concreto produziu cada trecho do nosso EEG.
+
+### Reanálise com potência relativa e controle de qualidade
+
+A tabela seguinte usa outro processamento: filtro 1-30 Hz, potência **relativa**, épocas de 2 s e rejeição por amplitude frontal. A FAA é a mediana das épocas aceitas, não a razão entre potências agregadas do programa antigo. A direção dessa FAA relativa foi negativa em todas as condições. Aplicar mecanicamente os nomes de “Estado” do código antigo a essa outra medida produziria rótulos diferentes; **nenhuma das duas versões foi validada como detector individual de relaxamento**. Filtro, normalização, rejeição de épocas e agregação mudaram em conjunto, de modo que esta comparação não isola qual etapa explica a divergência.
 
 | Condição | Épocas válidas / 148 | Alfa relativo | Theta relativo | ln(alfa/beta baixa) | FAA |
 | --- | --- | --- | --- | --- | --- |
@@ -79,7 +99,7 @@ O alfa foi maior no repouso em 27 das 36 pessoas. A direção persiste ao trocar
 | Primeiros 60 s | 36 | +6.22 p.p. | 27/36 |
 | Últimos 60 s | 36 | +5.69 p.p. | 27/36 |
 
-Essas janelas são sensibilidades escolhidas após a primeira análise. A limpeza anterior pelos autores, os eletrodos e a tarefa diferem do piloto. A regressão logística com uma pessoa inteira fora do treino por fold obteve **58.33% de acurácia balanceada** (ROC-AUC 0.614; p de 199 permutações por pessoa = 0.075). Isso não valida um detector individual de relaxamento. As probabilidades transferidas ao piloto não são “percentual de relaxamento”.
+Essas janelas são sensibilidades escolhidas após a primeira análise. A limpeza anterior pelos autores, os eletrodos e a tarefa diferem do piloto. A FAA relativa não apresentou diferença conclusiva entre repouso e cálculo mental nessa base (p Holm = 0,50680), outro motivo para não usar o limiar zero como classificador de calma. A regressão logística com uma pessoa inteira fora do treino por fold obteve **58.33% de acurácia balanceada** (ROC-AUC 0.614; p de 199 permutações por pessoa = 0.075). Isso não valida um detector individual de relaxamento. As probabilidades transferidas ao piloto não são “percentual de relaxamento”.
 
 ## 6. Binaural versus monaural em Sudre
 
@@ -94,7 +114,7 @@ Diferença positiva significa escore C1 maior que C0. Na codificação do artigo
 | G40 / CT | 19 | +2.11 | 1.000 |
 | G40 / PT | 19 | -0.58 | 1.000 |
 
-Nenhuma das seis escalas apresentou contraste conclusivo após Holm. Comparar C1 com C0 pergunta pela **vantagem específica do binaural sobre outro áudio**. Comparar qualquer áudio com avaliação anterior responde a outra pergunta. Não encontrar vantagem C1-C0 não prova ineficácia geral nem equivalência.
+Nenhuma das seis escalas apresentou contraste conclusivo após Holm **nesta comparação direta C1-C0**. O [artigo original de Sudre et al.](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0306427) relata melhora em alguns questionários após C1 em comparação com a avaliação pré-experimental; esse é outro contraste. Comparar C1 com C0 pergunta pela **vantagem específica do binaural sobre outro áudio**, enquanto comparar C1 com a avaliação anterior também pode captar passagem do tempo, expectativa e ouvir um som em geral. Não encontrar vantagem C1-C0 na nossa reanálise não prova ineficácia geral nem equivalência. Tampouco transfere automaticamente os resultados de outro protocolo e outras pessoas para este piloto.
 
 No EEG, subtraiu-se a base de ruído de cada condição e comparou-se a média dos três blocos de estímulo C1-C0. A seleção estrita exige F3, Fz e F4 em todas as fases; a sensibilidade usa só Fz:
 
@@ -145,9 +165,9 @@ Os seis folds compartilham conjuntos de treino; o desvio é entre folds, não in
 
 ## 8. Conclusão e próxima coleta
 
-**Sustentado:** os registros locais diferem em alguns descritores de EEG; alfa frontal durante BB foi menor que na Base nas configurações examinadas, com perda desigual de épocas. Alfa e theta diferenciam repouso de cálculo mental em média na EEGMAT. Nos dados de áudio reanalisados, C1-C0 não forneceu vantagem conclusiva nas escalas ou no EEG frontal após correção.
+**Sustentado:** o rótulo histórico “Aproximação/Relaxamento” apareceu na Base, nos quatro blocos BB e nas duas sessões Pós; a curva de janelas contém ambos os sinais de FAA em cada fase. Os registros locais diferem em alguns descritores de EEG, e o alfa frontal relativo durante BB foi menor que na Base nas configurações examinadas, com perda desigual de épocas. Isso demonstra mudanças **observadas durante a sessão**, compatíveis com várias explicações; não demonstra ausência de resposta ao áudio. Alfa e theta diferenciam repouso de cálculo mental em média na EEGMAT. Nos dados de áudio reanalisados, C1-C0 não forneceu vantagem conclusiva nas escalas ou no EEG frontal após correção.
 
-**Não identificado:** efeito causal específico do binaural, relaxamento percebido no participante local, resposta imediatamente após o áudio, equivalência entre estímulos, arrastamento neural ou benefício clínico. A [revisão sistemática de Ingendoh et al.](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0286023) encontrou resultados heterogêneos sobre arrastamento em EEG; uma banda isolada não determina estado psicológico.
+**Não identificado:** se o áudio, em comparação com outro som ou silêncio, causou alguma dessas mudanças; se a pessoa se sentiu mais calma; a resposta imediatamente após desligar o áudio; equivalência entre estímulos; arrastamento neural; ou benefício clínico. **Ausência de prova de benefício não é prova de efeito nulo.** A inferência causal falha porque há um participante, uma ordem fixa, nenhuma sessão controle comparável e nenhuma medida direta de relaxamento. Além disso, olhos, atenção e qualidade de contato não foram acompanhados. A [revisão sistemática de Ingendoh et al.](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0286023) encontrou resultados heterogêneos sobre arrastamento em EEG; uma banda isolada não determina estado psicológico.
 
 Uma nova coleta deve definir escala de relaxamento **antes e depois de cada sessão** como desfecho primário; comparar binaural com áudio controle pareado; randomizar e contrabalancear; repetir sessões e pessoas; registrar no EEG marcadores do áudio, olhos, contato e intensidade. Janelas, canais e rejeição de artefatos devem ser definidos antes de ver os resultados. A unidade inferencial será a pessoa ou sessão replicada conforme o desenho, não cada época de 2 s.
 
@@ -160,6 +180,7 @@ python3 -m unittest discover -s tests -v
 .venv-validation/bin/python -m src.pipelines.fetch_validation_data
 .venv-validation/bin/python -m src.pipelines.run_external_validation
 .venv-validation/bin/python -m src.pipelines.run_critical_reanalysis
+python3 -m src.pipelines.audit_legacy_states
 python3 reports/update_report.py
 python3 reports/generate_pdf.py
 ~~~
@@ -170,4 +191,4 @@ A auditoria eletrofisiológica e os classificadores têm comandos próprios no [
 
 **Dados:** [Zyma et al., Data (2019)](https://doi.org/10.3390/data4010014) e [EEGMAT no PhysioNet](https://physionet.org/content/eegmat/1.0.0/); [Sudre et al., PLOS ONE (2024)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0306427) e [dados OSF](https://osf.io/stzfd/).
 
-**Métodos e contexto:** [Ingendoh et al., PLOS ONE (2023)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0286023); [Vinck et al., NeuroImage (2011)](https://doi.org/10.1016/j.neuroimage.2011.01.055); [Lawhern et al., Journal of Neural Engineering (2018)](https://doi.org/10.1088/1741-2552/aace8c). A EEGNet do projeto é uma variante.
+**Métodos e contexto:** [Harmon-Jones e Sigelman, Journal of Personality and Social Psychology (2001)](https://pubmed.ncbi.nlm.nih.gov/11374750/); [Barry et al., Clinical Neurophysiology (2007)](https://pubmed.ncbi.nlm.nih.gov/17911042/); [Ingendoh et al., PLOS ONE (2023)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0286023); [Vinck et al., NeuroImage (2011)](https://doi.org/10.1016/j.neuroimage.2011.01.055); [Lawhern et al., Journal of Neural Engineering (2018)](https://doi.org/10.1088/1741-2552/aace8c). A EEGNet do projeto é uma variante.

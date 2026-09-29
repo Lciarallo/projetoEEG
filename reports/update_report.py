@@ -60,6 +60,24 @@ def main():
          for label, row in local.iterrows()]
     )
 
+    legacy = pd.read_csv(CRITICAL / 'legacy_state_audit.csv')
+    require_rows(legacy, 7, 'estados do programa legado')
+    if legacy.condition.tolist() != ORDER or not (legacy.faa_aggregate > 0).all():
+        raise ValueError('Estados legados diferentes dos reproduzidos na auditoria')
+    if not (legacy.legacy_state == 'Predomínio Esquerdo (Aproximação/Relaxamento)').all():
+        raise ValueError('Rótulo legado inesperado')
+    if not ((legacy.windows_positive >= 0) &
+            (legacy.windows_positive <= legacy.windows_total) &
+            (legacy.windows_total > 0)).all():
+        raise ValueError('Contagem inválida das janelas legadas')
+    legacy_table = table(
+        ['Condição', 'FAA legado', 'Estado exibido', 'Janelas 8 s com FAA > 0'],
+        [(row.condition, f'{row.faa_aggregate:+.3f}', 'Aproximação/Relaxamento',
+          f'{int(row.windows_positive)}/{int(row.windows_total)} '
+          f'({row.windows_positive_pct:.1f}%)')
+         for row in legacy.itertuples()]
+    )
+
     quality = pd.read_csv(CRITICAL / 'local_quality_sensitivity.csv')
     require_rows(quality, 14, 'sensibilidade local')
     quality_rows = []
@@ -173,6 +191,7 @@ def main():
         'ACQUISITION_TABLE': acquisition,
         'GAP_BB_POST_TEXT': f'{gap:.0f} s ({int(gap // 60)} min {round(gap % 60):02d} s)',
         'LOCAL_TABLE': local_table,
+        'LEGACY_STATE_TABLE': legacy_table,
         'QUALITY_TABLE': quality_table,
         'EEGMAT_TABLE': eegmat_table,
         'WINDOW_TABLE': window_table,

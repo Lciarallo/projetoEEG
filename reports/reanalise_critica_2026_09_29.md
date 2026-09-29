@@ -2,11 +2,27 @@
 
 ## Pergunta e conclusão
 
-A pergunta científica é se o áudio binaural teve efeito no **relaxamento**. Os registros locais não permitem responder causalmente: há um participante, uma sequência fixa de arquivos, nenhuma condição acústica de controle, nenhum marcador independente de início/fim do áudio e nenhuma medida subjetiva de relaxamento. É possível descrever o EEG e testar se os procedimentos de análise são estáveis. É incorreto transformar classificação de arquivos, potência alfa ou índice de defasagem em prova de relaxamento.
+A pergunta científica é se o áudio binaural teve efeito no **relaxamento**. Os registros locais não permitem responder causalmente: há um participante, uma sequência fixa de arquivos, nenhuma condição acústica de controle, nenhum marcador independente de início/fim do áudio e nenhuma medida subjetiva de relaxamento. É possível descrever o EEG e testar se os procedimentos de análise são estáveis. É incorreto transformar classificação de arquivos, potência alfa, rótulo de “Estado” ou índice de defasagem em prova de relaxamento. Também é incorreto afirmar que foi demonstrada ausência de efeito do áudio.
 
 A nova reanálise confirma uma queda descritiva do alfa frontal nos blocos de áudio, sobretudo BB 3 e BB 4. A retenção de épocas muda muito entre condições. A EEGMAT reproduz uma diferença entre repouso e cálculo mental em 36 pessoas, inclusive com outra janela de repouso, mas essa tarefa não calibra um detector de relaxamento. A base de [Sudre et al.](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0306427) oferece um contraste acústico mais pertinente: os questionários C1 (binaural) versus C0 (monaural) não mostram vantagem conclusiva nesta reanálise, e o resultado frontal de EEG depende da cobertura dos eletrodos.
 
 Todos os testes abaixo são **exploratórios e posteriores à primeira análise**. Os valores numéricos e os hashes dos arquivos de entrada estão em [results/critical_2026_09_29](../results/critical_2026_09_29/).
+
+## Adendo: o “Estado” exibido pelo programa anterior
+
+O [script histórico](../legacy/compute_frontal_alpha_asymmetry.py) chama `FAA = ln(alfa F4) - ln(alfa F3)` de “Estado”: FAA positiva recebe “Predomínio Esquerdo (Aproximação/Relaxamento)”; FAA não positiva recebe “Predomínio Direito (Evitação/Alerta)”. Reproduzi a [tabela histórica](../results/tables/tabela_assimetria_alfa_frontal.csv) diretamente dos arquivos brutos. A coluna de janelas usa a mesma fórmula da curva antiga, com janelas de 8 s e passo de 2 s inteiramente contidas em cada condição. Resultados e hashes estão em [legacy_state_audit.csv](../results/critical_2026_09_29/legacy_state_audit.csv) e [manifesto](../results/critical_2026_09_29/legacy_state_audit_manifest.json).
+
+| Condição | FAA da condição | “Estado” histórico | Janelas de 8 s com FAA positiva |
+| --- | ---: | --- | ---: |
+| Base | +1,956 | Aproximação/Relaxamento | 47/171 (27,5%) |
+| BB 1 | +0,465 | Aproximação/Relaxamento | 106/146 (72,6%) |
+| BB 2 | +3,221 | Aproximação/Relaxamento | 109/146 (74,7%) |
+| BB 3 | +1,620 | Aproximação/Relaxamento | 101/146 (69,2%) |
+| BB 4 | +1,748 | Aproximação/Relaxamento | 74/146 (50,7%) |
+| Pós 1 | +4,259 | Aproximação/Relaxamento | 20/152 (13,2%) |
+| Pós 2 | +1,977 | Aproximação/Relaxamento | 54/156 (34,6%) |
+
+O mesmo rótulo em Base e BB não mostra transição para “relaxado” com o som. A proporção de janelas positivas foi descritivamente maior em BB que na Base, mas janelas com sobreposição não são réplicas e a sequência fixa não identifica causa. FAA da condição e contagem de sinais das janelas são operações matemáticas diferentes; o contraste marcante no Pós 1 demonstra que o rótulo agregado não descreve cada instante. O programa antigo não rejeita épocas por amplitude. Na reanálise com potência relativa e controle de qualidade, a FAA mediana foi negativa nas sete condições, evidenciando sensibilidade ao processamento sem identificar qual etapa produziu a diferença. Nenhum desses sinais é escala validada de calma individual. Em [Harmon-Jones e Sigelman (2001)](https://pubmed.ncbi.nlm.nih.gov/11374750/), maior atividade frontal esquerda também acompanhou raiva com motivação de aproximação; em [Barry et al. (2007)](https://pubmed.ncbi.nlm.nih.gov/17911042/), abrir os olhos alterou o alfa. Essas são razões científicas para não converter a classe em diagnóstico de relaxamento.
 
 ## 1. Cronologia verificada nos timestamps
 
@@ -16,7 +32,7 @@ Todos os testes abaixo são **exploratórios e posteriores à primeira análise*
 | Fim do arquivo BB → início do Pós 1 | **642,0 s (10 min 42 s)** |
 | Fim do Pós 1 → início do Pós 2 | 181,2 s |
 
-São intervalos **entre arquivos de EEG**, calculados dos timestamps numéricos, não dos nomes dos arquivos. Os timestamps repetidos são esperados em parte pelo registro de pares de amostras, mas não representam uma observação independente por época. Sem um marcador de desligamento do áudio, não se conhece o intervalo exato entre o áudio e o Pós 1. Portanto, “recuperação imediata” e “consolidação tardia” não são interpretações verificadas. A primeira análise posterior começa mais de dez minutos depois do fim do arquivo de áudio.
+São intervalos **entre arquivos de EEG**, calculados dos timestamps numéricos, não dos nomes dos arquivos. Os timestamps repetidos são esperados em parte pelo registro de pares de amostras, mas não representam uma observação independente por época. Sem um marcador de desligamento do áudio, não se conhece o intervalo exato entre o áudio e o Pós 1. Portanto, “recuperação imediata” e “consolidação tardia” não são interpretações verificadas. A primeira análise posterior começa mais de dez minutos depois do fim do arquivo de EEG rotulado BB.
 
 ## 2. Reavaliação dos testes científicos existentes
 

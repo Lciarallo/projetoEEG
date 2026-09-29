@@ -1,0 +1,27 @@
+{
+  "parameters": {
+    "fs": 200,
+    "alpha_hz": [
+      8,
+      13
+    ],
+    "notch_hz": 60,
+    "bandpass_hz": [
+      1,
+      45
+    ],
+    "window_s": 8,
+    "step_s": 2,
+    "aggregate": "log of whole-segment Welch alpha-power ratio",
+    "state_threshold": 0
+  },
+  "input_sha256": {
+    "data/raw/OpenBCI-RAW-2023-11-28_15-56-59.txt": "4e85f439e58c30069416711f06f252b2622e029ebfc9f985df2387ef177521bd",
+    "data/raw/OpenBCI-RAW-2023-11-28_16-04-54.txt": "72a08784e003025b3da3497a3593a7cf44ce11e9ba6277fe677935d8cb12fa2a",
+    "data/raw/OpenBCI-RAW-2023-11-28_16-36-02.txt": "9dedf909bc8554940b557278f4eb87b2d158979a7fc08b635b11788fcc13c613",
+    "data/raw/OpenBCI-RAW-2023-11-28_16-44-15.txt": "8c7d428f91778bf1b9fb4e0e394b70dff7576c9ff94d987281aece68d6bc2376",
+    "results/tables/tabela_assimetria_alfa_frontal.csv": "e13f4f07ff08dc04cac289d1f8095443dc89e0b2e0f2ef4e29614b69df35697d",
+    "legacy/compute_frontal_alpha_asymmetry.py": "46cbae342b1f17d8a8c2ab25964cf443931a2aad2d40aa5e19562121b6c408ee",
+    "src/pipelines/audit_legacy_states.py": "ca042b841c5c840ba6e879598bc42b064e2bc91f5ded505162b331d8d59d5a6f"
+  }
+}

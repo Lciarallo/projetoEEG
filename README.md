@@ -2,13 +2,13 @@
 
 [Relatório científico consolidado](reports/relatorio_cientifico.md) · [PDF](reports/Relatorio_Cientifico_EEG_Binaural.pdf) · [Reanálise crítica detalhada](reports/reanalise_critica_2026_09_29.md).
 
-**Conclusão atual:** as diferenças de EEG entre arquivos não demonstram que o áudio binaural causou relaxamento. O relatório principal integra o piloto, 36 participantes da EEGMAT e os contrastes binaural-monaural publicados por Sudre et al., com os testes refeitos e suas limitações.
+**Conclusão atual:** o programa histórico exibiu “Aproximação/Relaxamento” antes, durante e depois do trecho rotulado como áudio binaural. A auditoria reproduziu esses rótulos dos arquivos brutos; eles não demonstram que o áudio causou relaxamento nem que não teve efeito. Há mudanças descritivas no EEG, mas o efeito específico do som e a sensação de calma da pessoa permanecem indeterminados. O relatório principal integra o piloto, 36 participantes da EEGMAT e os contrastes binaural-monaural publicados por Sudre et al.
 
 ## Reanálise crítica - 29/09/2026
 
 [Relatório crítico](reports/reanalise_critica_2026_09_29.md) · [Resultados e manifesto](results/critical_2026_09_29/) · [Testes reescritos](tests/).
 
-Os timestamps mostram **642,0 s sem registro** entre o fim do arquivo BB e o início do Pós 1; não há marcador que informe quando o áudio foi desligado. A nova análise recalcula diretamente dos arquivos brutos as 772 épocas locais da configuração principal e examina retenção por bloco, escolha da janela EEGMAT, cobertura dos eletrodos e ordem dos áudios na base Sudre. Esses testes reforçam os limites da inferência: diferenças no EEG local não demonstram relaxamento ou efeito causal do binaural. Para reproduzir: `python3 -m unittest discover -s tests -v` e `.venv-validation/bin/python -m src.pipelines.run_critical_reanalysis` após baixar os dados externos.
+Os timestamps mostram **642,0 s sem registro** entre o fim do arquivo BB e o início do Pós 1; não há marcador que informe quando o áudio foi desligado. A nova análise recalcula diretamente dos arquivos brutos as 772 épocas locais da configuração principal e examina retenção por bloco, escolha da janela EEGMAT, cobertura dos eletrodos e ordem dos áudios na base Sudre. A [auditoria dos estados históricos](results/critical_2026_09_29/legacy_state_audit.csv) reproduz a tabela antiga e verifica também as janelas de 8 s da curva: o rótulo por condição não significa um estado contínuo. Para reproduzir: `python3 -m unittest discover -s tests -v`, `python3 -m src.pipelines.audit_legacy_states` e `.venv-validation/bin/python -m src.pipelines.run_critical_reanalysis` após baixar os dados externos.
 
 ## Novo estudo de relaxamento com validação externa - 28/09/2026
 
@@ -59,7 +59,7 @@ O PDF precisa de Chromium/Chrome local. A geração funciona offline com figuras
 - `src/pipelines/`: eletrofisiologia com sensibilidade, Random Forest temporal/transferência e EEGNet temporal.
 - `results/audit_2026_09_26/`: resultados revisados, figura e manifestos SHA-256 de dados/código, parâmetros e versões.
 - `results/validation_2026_09_28/` e `results/critical_2026_09_29/`: validação externa, sensibilidades, testes pareados e manifestos.
-- `results/tables/`, `results/figures/`, `legacy/`: material histórico, não revalidado integralmente.
+- `results/tables/`, `results/figures/`, `legacy/`: material histórico; a tabela dos estados FAA foi reproduzida nesta revisão, os demais itens não foram revalidados integralmente.
 - `reports/relatorio_cientifico_template.md` e `reports/update_report.py`: montam o relatório principal a partir dos CSVs; `generate_pdf.py`: renderiza e sincroniza os PDFs.
 - `tests/`: regressões de leitura, rejeição, cronologia, estatística, filtragem e dimensões da rede.
 

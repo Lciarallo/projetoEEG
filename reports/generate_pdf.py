@@ -33,9 +33,9 @@ def render_html(md_content, md_path=MD_PATH):
     return '''<!doctype html><html lang="pt-BR"><meta charset="utf-8">
 <title>Áudio binaural e relaxamento: relatório científico</title><style>
 @page {size:A4; margin:15mm 14mm 15mm; @bottom-right {content:"Página " counter(page);font:9pt sans-serif;color:#536172;}}
-body {font:9.7pt/1.4 "DejaVu Sans",sans-serif;color:#202c38;}
+body {font:9.7pt/1.36 "DejaVu Sans",sans-serif;color:#202c38;}
 h1 {font-size:21pt;line-height:1.2;color:#163b56;}
-h2 {font-size:13pt;color:#163b56;margin-top:16pt;border-bottom:1px solid #ccd7df;padding-bottom:5pt;break-after:avoid;}
+h2 {font-size:13pt;color:#163b56;margin-top:14pt;border-bottom:1px solid #ccd7df;padding-bottom:5pt;break-after:avoid;}
 p {orphans:3;widows:3;}
 table {width:100%;border-collapse:collapse;font-size:8pt;margin:9pt 0;break-inside:avoid;}
 thead {display:table-header-group;} tr {break-inside:avoid;}
